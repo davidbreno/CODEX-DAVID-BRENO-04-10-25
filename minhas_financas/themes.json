@@ -1,0 +1,44 @@
+{
+  "dark_neon": {
+    "name": "Dark Neon",
+    "palette": {
+      "window": "#05060a",
+      "text": "#f5f7ff",
+      "primary": "#3f51b5",
+      "accent": "#7c4dff",
+      "card": "#0f111a",
+      "card_text": "#e9ebff",
+      "positive": "#4caf50",
+      "negative": "#ef5350",
+      "warning": "#ffca28"
+    }
+  },
+  "dark_soft": {
+    "name": "Dark Suave",
+    "palette": {
+      "window": "#1d1f24",
+      "text": "#f5f5f5",
+      "primary": "#607d8b",
+      "accent": "#26c6da",
+      "card": "#2a2d34",
+      "card_text": "#f0f0f0",
+      "positive": "#81c784",
+      "negative": "#e57373",
+      "warning": "#ffd54f"
+    }
+  },
+  "light": {
+    "name": "Light Mode",
+    "palette": {
+      "window": "#f4f5fb",
+      "text": "#1f2933",
+      "primary": "#1976d2",
+      "accent": "#ff7043",
+      "card": "#ffffff",
+      "card_text": "#1f2933",
+      "positive": "#43a047",
+      "negative": "#e53935",
+      "warning": "#ffa000"
+    }
+  }
+}
