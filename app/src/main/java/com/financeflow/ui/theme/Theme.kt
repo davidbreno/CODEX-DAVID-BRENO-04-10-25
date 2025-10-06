@@ -30,15 +30,15 @@ data class GradientTheme(val gradient: Brush, val isDark: Boolean, val name: Str
 
 val LocalGradientTheme = staticCompositionLocalOf {
     GradientTheme(
-        gradient = FinanceFlowPalettes.Sunrise.gradient,
-        isDark = FinanceFlowPalettes.Sunrise.isDark,
-        name = FinanceFlowPalettes.Sunrise.name
+        gradient = FinanceFlowPalettes.Nebula.gradient,
+        isDark = FinanceFlowPalettes.Nebula.isDark,
+        name = FinanceFlowPalettes.Nebula.name
     )
 }
 
 @Composable
 fun FinanceFlowTheme(
-    gradientTheme: FinanceFlowGradient = FinanceFlowPalettes.Sunrise,
+    gradientTheme: FinanceFlowGradient = FinanceFlowPalettes.Nebula,
     useDarkTheme: Boolean = gradientTheme.isDark || isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

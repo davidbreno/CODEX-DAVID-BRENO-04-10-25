@@ -1,2 +1,2 @@
-rootProject.name = "FinanceFlow"
+rootProject.name = "FinancesDavid"
 include(":app")

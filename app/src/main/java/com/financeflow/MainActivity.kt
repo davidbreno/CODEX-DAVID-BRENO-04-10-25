@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
 
         val app = application as FinanceFlowApp
         setContent {
-            val gradient by app.themeRepository.theme.collectAsState(initial = com.financeflow.ui.theme.FinanceFlowPalettes.Sunrise)
+            val gradient by app.themeRepository.theme.collectAsState(initial = com.financeflow.ui.theme.FinanceFlowPalettes.Nebula)
             FinanceFlowTheme(gradientTheme = gradient) {
                 val navController = rememberNavController()
                 val authViewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory(app.authRepository))
