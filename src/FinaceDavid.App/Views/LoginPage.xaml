@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FinaceDavid.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:viewmodels="clr-namespace:FinaceDavid.ViewModels"
+    BackgroundColor="{DynamicResource SurfaceColor}"
+    x:DataType="viewmodels:LoginViewModel"
+    Title="FINACE DAVID">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="24" VerticalOptions="Center">
+            <Label
+                Text="FINACE DAVID"
+                FontSize="28"
+                FontAttributes="Bold"
+                TextColor="{DynamicResource PrimaryTextColor}"
+                HorizontalOptions="Center" />
+            <Border Stroke="{DynamicResource CardBorderColor}" BackgroundColor="{DynamicResource CardBackgroundColor}" StrokeShape="RoundRectangle 24">
+                <VerticalStackLayout Padding="24" Spacing="16">
+                    <Label
+                        Text="Acesse sua conta"
+                        TextColor="{DynamicResource SecondaryTextColor}"
+                        FontSize="18" />
+                    <Entry
+                        Placeholder="PIN ou senha"
+                        Text="{Binding Password, Mode=TwoWay}"
+                        IsPassword="True"
+                        ReturnType="Next"
+                        MinimumHeightRequest="48"
+                        TextColor="{DynamicResource PrimaryTextColor}"
+                        PlaceholderColor="{DynamicResource SecondaryTextColor}" />
+                    <Entry
+                        Placeholder="Confirme a senha"
+                        Text="{Binding ConfirmPassword, Mode=TwoWay}"
+                        IsPassword="True"
+                        MinimumHeightRequest="48"
+                        TextColor="{DynamicResource PrimaryTextColor}"
+                        PlaceholderColor="{DynamicResource SecondaryTextColor}"
+                        IsVisible="{Binding IsFirstAccess}" />
+                    <Button
+                        Text="Entrar"
+                        Command="{Binding AuthenticateCommand}"
+                        BackgroundColor="{DynamicResource AccentColor}"
+                        TextColor="White"
+                        CornerRadius="12"
+                        HeightRequest="48" />
+                    <Label Text="{Binding StatusMessage}" TextColor="{DynamicResource AccentColor}" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
