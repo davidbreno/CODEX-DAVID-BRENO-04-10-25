@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FinaceDavid.Views.TransactionFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:viewmodels="clr-namespace:FinaceDavid.ViewModels"
+    xmlns:enums="clr-namespace:FinaceDavid.Domain.Enums"
+    BackgroundColor="{DynamicResource SurfaceColor}"
+    x:DataType="viewmodels:TransactionFormViewModel">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label Text="Tipo" TextColor="{DynamicResource SecondaryTextColor}" />
+            <Picker x:Name="TypePicker" SelectedItem="{Binding Type}" ItemDisplayBinding="{Binding .}" />
+            <Label Text="Status" TextColor="{DynamicResource SecondaryTextColor}" />
+            <Picker x:Name="StatusPicker" SelectedItem="{Binding Status}" ItemDisplayBinding="{Binding .}" />
+            <Label Text="Valor" TextColor="{DynamicResource SecondaryTextColor}" />
+            <Entry Keyboard="Numeric" Text="{Binding Valor, Mode=TwoWay}" MinimumHeightRequest="48" />
+            <Label Text="Data" TextColor="{DynamicResource SecondaryTextColor}" />
+            <DatePicker Date="{Binding Data}" />
+            <Label Text="Categoria" TextColor="{DynamicResource SecondaryTextColor}" />
+            <Entry Text="{Binding Categoria}" MinimumHeightRequest="48" />
+            <Label Text="Descrição" TextColor="{DynamicResource SecondaryTextColor}" />
+            <Editor Text="{Binding Descricao}" AutoSize="TextChanges" MinimumHeightRequest="80" />
+            <Button Text="Salvar" Command="{Binding SaveCommand}" BackgroundColor="{DynamicResource AccentColor}" TextColor="White" CornerRadius="12" HeightRequest="48" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
