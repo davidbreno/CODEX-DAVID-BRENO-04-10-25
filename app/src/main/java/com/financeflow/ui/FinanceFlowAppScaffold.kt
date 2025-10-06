@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,7 +25,6 @@ import com.financeflow.ui.components.GradientBackground
 import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
-    object Onboarding : Screen("onboarding")
     object Login : Screen("login")
     object Register : Screen("register")
     object Dashboard : Screen("dashboard")
@@ -45,6 +45,7 @@ fun FinanceFlowAppScaffold(
     val transactionState = transactionViewModel.dashboard.collectAsState()
     val editingTransaction = remember { mutableStateOf<TransactionEntity?>(null) }
     val editingBill = remember { mutableStateOf<BillEntity?>(null) }
+    val quickTransactionType = remember { mutableStateOf<com.financeflow.transactions.TransactionType?>(null) }
 
     LaunchedEffect(authState.value) {
         when (val state = authState.value) {
@@ -55,13 +56,13 @@ fun FinanceFlowAppScaffold(
             }
             is AuthState.Authenticated -> {
                 navController.navigate(Screen.Dashboard.route) {
-                    popUpTo(Screen.Onboarding.route) { inclusive = true }
+                    popUpTo(Screen.Login.route) { inclusive = true }
                     launchSingleTop = true
                 }
             }
             AuthState.Unauthenticated -> {
-                navController.navigate(Screen.Onboarding.route) {
-                    popUpTo(Screen.Onboarding.route) { inclusive = true }
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true }
                     launchSingleTop = true
                 }
             }
@@ -77,32 +78,30 @@ fun FinanceFlowAppScaffold(
             ) {
                 NavHost(
                     navController = navController,
-                    startDestination = Screen.Onboarding.route,
+                    startDestination = Screen.Login.route,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    composable(Screen.Onboarding.route) {
-                        OnboardingScreen(
-                            onLogin = { navController.navigate(Screen.Login.route) },
-                            onRegister = { navController.navigate(Screen.Register.route) }
-                        )
-                    }
                     composable(Screen.Login.route) {
                         AuthScreen(
-                            title = "Sign In",
-                            submitLabel = "Login",
+                            title = stringResource(id = com.financeflow.R.string.login_title),
+                            subtitle = stringResource(id = com.financeflow.R.string.welcome_back),
+                            submitLabel = stringResource(id = com.financeflow.R.string.login),
                             onSubmit = { email, password -> authViewModel.login(email, password) },
                             onSwitch = { navController.navigate(Screen.Register.route) },
+                            switchText = stringResource(id = com.financeflow.R.string.need_account),
                             isLoading = authState.value is AuthState.Loading
                         )
                     }
                     composable(Screen.Register.route) {
                         AuthScreen(
-                            title = "Create Account",
-                            submitLabel = "Register",
+                            title = stringResource(id = com.financeflow.R.string.register_title),
+                            subtitle = stringResource(id = com.financeflow.R.string.register_subtitle),
+                            submitLabel = stringResource(id = com.financeflow.R.string.register),
                             onSubmitWithConfirm = { email, password, confirm ->
                                 authViewModel.register(email, password, confirm)
                             },
                             onSwitch = { navController.navigate(Screen.Login.route) },
+                            switchText = stringResource(id = com.financeflow.R.string.have_account),
                             isRegister = true,
                             isLoading = authState.value is AuthState.Loading
                         )
@@ -110,15 +109,29 @@ fun FinanceFlowAppScaffold(
                     composable(Screen.Dashboard.route) {
                         val summary = transactionState.value
                         val analytics = remember(summary) { AnalyticsEngine.summarize(summary.transactions) }
+                        val user = (authState.value as? AuthState.Authenticated)?.user
                         DashboardScreen(
                             summary = summary,
                             analytics = analytics,
+                            user = user,
                             onAddTransaction = {
                                 editingTransaction.value = null
+                                quickTransactionType.value = null
+                                navController.navigate(Screen.TransactionForm.route)
+                            },
+                            onAddIncome = {
+                                editingTransaction.value = null
+                                quickTransactionType.value = com.financeflow.transactions.TransactionType.INCOME
+                                navController.navigate(Screen.TransactionForm.route)
+                            },
+                            onAddExpense = {
+                                editingTransaction.value = null
+                                quickTransactionType.value = com.financeflow.transactions.TransactionType.EXPENSE
                                 navController.navigate(Screen.TransactionForm.route)
                             },
                             onEditTransaction = { transaction ->
                                 editingTransaction.value = transaction
+                                quickTransactionType.value = null
                                 navController.navigate(Screen.TransactionForm.route)
                             },
                             onDeleteTransaction = { transaction ->
@@ -140,6 +153,7 @@ fun FinanceFlowAppScaffold(
                     composable(Screen.TransactionForm.route) {
                         TransactionFormScreen(
                             initial = editingTransaction.value,
+                            defaultType = quickTransactionType.value,
                             onSubmit = { id, title, amount, type, category, occurredAt ->
                                 transactionViewModel.saveTransaction(
                                     id = id,
@@ -150,10 +164,12 @@ fun FinanceFlowAppScaffold(
                                     occurredAt = occurredAt
                                 )
                                 editingTransaction.value = null
+                                quickTransactionType.value = null
                                 navController.popBackStack()
                             },
                             onCancel = {
                                 editingTransaction.value = null
+                                quickTransactionType.value = null
                                 navController.popBackStack()
                             }
                         )

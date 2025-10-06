@@ -10,6 +10,13 @@ data class FinanceFlowGradient(
 )
 
 object FinanceFlowPalettes {
+    val Nebula = FinanceFlowGradient(
+        name = "Nebula",
+        gradient = Brush.verticalGradient(
+            colors = listOf(Color(0xFF130F40), Color(0xFF1B1464), Color(0xFF0F3460))
+        ),
+        isDark = true
+    )
     val Sunrise = FinanceFlowGradient(
         name = "Sunrise",
         gradient = Brush.verticalGradient(
@@ -46,5 +53,5 @@ object FinanceFlowPalettes {
         isDark = true
     )
 
-    val all = listOf(Sunrise, Ocean, Forest, Twilight, Midnight)
+    val all = listOf(Nebula, Sunrise, Ocean, Forest, Twilight, Midnight)
 }

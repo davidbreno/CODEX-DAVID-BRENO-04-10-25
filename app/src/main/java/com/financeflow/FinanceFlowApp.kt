@@ -17,7 +17,7 @@ class FinanceFlowApp : Application() {
         Room.databaseBuilder(
             applicationContext,
             FinanceFlowDatabase::class.java,
-            "financeflow.db"
+            "financesdavid.db"
         ).fallbackToDestructiveMigration().build()
     }
 

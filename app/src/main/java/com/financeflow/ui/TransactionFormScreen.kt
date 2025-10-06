@@ -18,27 +18,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.financeflow.transactions.TransactionEntity
 import com.financeflow.transactions.TransactionType
 import java.time.Instant
+import com.financeflow.R
 
 @Composable
 fun TransactionFormScreen(
     initial: TransactionEntity?,
+    defaultType: TransactionType? = null,
     onSubmit: (Long?, String, Double, TransactionType, String, Instant) -> Unit,
     onCancel: () -> Unit
 ) {
     val titleState = remember { mutableStateOf(initial?.title ?: "") }
     val amountState = remember { mutableStateOf(initial?.amount?.toString() ?: "") }
-    val categoryState = remember { mutableStateOf(initial?.category ?: "General") }
-    val typeState = remember { mutableStateOf(initial?.type ?: TransactionType.EXPENSE) }
+    val categoryState = remember { mutableStateOf(initial?.category ?: "Geral") }
+    val typeState = remember { mutableStateOf(initial?.type ?: defaultType ?: TransactionType.EXPENSE) }
 
     Column(modifier = Modifier.padding(24.dp)) {
-        Text(text = if (initial == null) "Add Transaction" else "Edit Transaction")
+        Text(text = if (initial == null) stringResource(id = R.string.add_transaction) else stringResource(id = R.string.edit_transaction))
         OutlinedTextField(
             value = titleState.value,
             onValueChange = { titleState.value = it },
-            label = { Text("Title") },
+            label = { Text(stringResource(id = R.string.transaction_title_label)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
@@ -46,7 +49,7 @@ fun TransactionFormScreen(
         OutlinedTextField(
             value = amountState.value,
             onValueChange = { amountState.value = it },
-            label = { Text("Amount") },
+            label = { Text(stringResource(id = R.string.transaction_amount_label)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier
                 .fillMaxWidth()
@@ -55,12 +58,12 @@ fun TransactionFormScreen(
         OutlinedTextField(
             value = categoryState.value,
             onValueChange = { categoryState.value = it },
-            label = { Text("Category") },
+            label = { Text(stringResource(id = R.string.transaction_category_label)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
         )
-        Text(text = "Type", modifier = Modifier.padding(top = 16.dp))
+        Text(text = stringResource(id = R.string.transaction_type_label), modifier = Modifier.padding(top = 16.dp))
         TypeSelector(selected = typeState.value, onSelect = { typeState.value = it })
         Button(
             onClick = {
@@ -72,10 +75,10 @@ fun TransactionFormScreen(
                 .padding(top = 24.dp)
                 .fillMaxWidth()
         ) {
-            Text("Save")
+            Text(stringResource(id = R.string.save))
         }
         TextButton(onClick = onCancel, modifier = Modifier.padding(top = 8.dp)) {
-            Text("Cancel")
+            Text(stringResource(id = R.string.cancel))
         }
     }
 }
@@ -83,8 +86,8 @@ fun TransactionFormScreen(
 @Composable
 private fun TypeSelector(selected: TransactionType, onSelect: (TransactionType) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-        RadioOption(label = "Income", value = TransactionType.INCOME, selected = selected, onSelect = onSelect)
-        RadioOption(label = "Expense", value = TransactionType.EXPENSE, selected = selected, onSelect = onSelect)
+        RadioOption(label = stringResource(id = R.string.income_label), value = TransactionType.INCOME, selected = selected, onSelect = onSelect)
+        RadioOption(label = stringResource(id = R.string.expense_label), value = TransactionType.EXPENSE, selected = selected, onSelect = onSelect)
     }
 }
 
