@@ -9,3 +9,14 @@ app/build/
 *.keystore
 *.jks
 .idea/
+bin/
+obj/
+*.user
+*.DS_Store
+*.db3
+*.db
+*.db-journal
+.vs/
+**/bin/
+**/obj/
+ COD

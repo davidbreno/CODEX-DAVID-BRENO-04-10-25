@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FinaceDavid.Views.PayableFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:viewmodels="clr-namespace:FinaceDavid.ViewModels"
+    xmlns:enums="clr-namespace:FinaceDavid.Domain.Enums"
+    BackgroundColor="{DynamicResource SurfaceColor}"
+    x:DataType="viewmodels:PayableFormViewModel">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label Text="Título" TextColor="{DynamicResource SecondaryTextColor}" />
+            <Entry Text="{Binding Titulo}" MinimumHeightRequest="48" />
+            <Label Text="Valor" TextColor="{DynamicResource SecondaryTextColor}" />
+            <Entry Text="{Binding Valor, Mode=TwoWay}" Keyboard="Numeric" MinimumHeightRequest="48" />
+            <Label Text="Vencimento" TextColor="{DynamicResource SecondaryTextColor}" />
+            <DatePicker Date="{Binding Vencimento}" />
+            <Label Text="Status" TextColor="{DynamicResource SecondaryTextColor}" />
+            <Picker x:Name="StatusPicker" SelectedItem="{Binding Status}" ItemDisplayBinding="{Binding .}" />
+            <Label Text="Nota" TextColor="{DynamicResource SecondaryTextColor}" />
+            <Editor Text="{Binding Nota}" AutoSize="TextChanges" MinimumHeightRequest="80" />
+            <Button Text="Salvar" Command="{Binding SaveCommand}" BackgroundColor="{DynamicResource AccentColor}" TextColor="White" CornerRadius="12" HeightRequest="48" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
