@@ -1,8 +1,14 @@
-*.iml
-.gradle/
+/.gradle/
 /local.properties
 /.idea/
 .DS_Store
 /build/
 app/build/
-app/release.keystore
+**/build/
+*.iml
+*.keystore
+*.jks
+.idea/
+# .NET build artifacts
+**/bin/
+**/obj/

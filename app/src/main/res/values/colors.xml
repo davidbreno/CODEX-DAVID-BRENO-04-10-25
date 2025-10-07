@@ -1,12 +1,8 @@
 <resources>
-    <color name="theme_sunrise_start">#FF6F61</color>
-    <color name="theme_sunrise_end">#FFA177</color>
-    <color name="theme_ocean_start">#2193b0</color>
-    <color name="theme_ocean_end">#6dd5ed</color>
-    <color name="theme_forest_start">#11998e</color>
-    <color name="theme_forest_end">#38ef7d</color>
-    <color name="theme_twilight_start">#654ea3</color>
-    <color name="theme_twilight_end">#eaafc8</color>
-    <color name="theme_midnight_start">#141E30</color>
-    <color name="theme_midnight_end">#243B55</color>
+    <color name="bluePrimary">#1DA1F2</color>
+    <color name="cyanAccent">#1ABCFE</color>
+    <color name="darkSurface">#0F172A</color>
+    <color name="darkCard">#172554</color>
+    <color name="lightSurface">#F8FAFC</color>
+    <color name="lightCard">#E2E8F0</color>
 </resources>
