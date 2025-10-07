@@ -1,0 +1,40 @@
+<Window x:Class="FinaceDavid.Desktop.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FINACE DAVID - Login" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded"
+        Background="{DynamicResource AppBackground}">
+    <Grid Margin="40">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+            <TextBlock Text="FINACE DAVID" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,12" />
+            <TextBlock Text="Controle financeiro pessoal" FontSize="16" Foreground="{DynamicResource ForegroundBrush}" Margin="0,0,0,8" />
+            <TextBlock Text="Use seu PIN ou senha para continuar." Foreground="{DynamicResource ForegroundMutedBrush}" />
+        </StackPanel>
+
+        <Border Grid.Column="1" CornerRadius="16" Padding="32" Background="{DynamicResource CardBackground}">
+            <StackPanel>
+                <TextBlock Text="Acessar" FontSize="24" FontWeight="SemiBold" Foreground="{DynamicResource ForegroundBrush}" Margin="0,0,0,16" />
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Usuário" Foreground="{DynamicResource ForegroundMutedBrush}" Margin="0,0,0,4" />
+                    <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputTextBox}" />
+                </StackPanel>
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="PIN ou senha" Foreground="{DynamicResource ForegroundMutedBrush}" Margin="0,0,0,4" />
+                    <PasswordBox x:Name="PasswordBox" Style="{StaticResource InputPasswordBox}" PasswordChanged="PasswordBox_OnPasswordChanged" />
+                </StackPanel>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="Tomato" Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" Margin="0,0,0,12" />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Entrar" Style="{StaticResource PrimaryButton}" Click="LoginButton_OnClick" Margin="0,0,12,0" />
+                    <Button Content="Registrar" Style="{StaticResource SecondaryButton}" Click="RegisterButton_OnClick" />
+                </StackPanel>
+                <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,16,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
