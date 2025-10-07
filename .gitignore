@@ -1,3 +1,14 @@
+/.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build/
+app/build/
+**/build/
+*.iml
+*.keystore
+*.jks
+.idea/
 bin/
 obj/
 *.user
@@ -8,3 +19,4 @@ obj/
 .vs/
 **/bin/
 **/obj/
+ COD
