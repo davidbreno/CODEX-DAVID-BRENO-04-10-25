@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FinaceDavid.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:viewmodels="clr-namespace:FinaceDavid.ViewModels"
+    xmlns:domain="clr-namespace:FinaceDavid.Domain.Entities"
+    BackgroundColor="{DynamicResource SurfaceColor}"
+    x:DataType="viewmodels:HomeViewModel">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="24">
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
+                <VerticalStackLayout>
+                    <Label Text="Bem-vindo" FontSize="18" TextColor="{DynamicResource SecondaryTextColor}" />
+                    <Label Text="Saldo atual" FontSize="14" TextColor="{DynamicResource SecondaryTextColor}" />
+                    <Label Text="{Binding Saldo, StringFormat='R$ {0:N2}'}" FontSize="32" FontAttributes="Bold" TextColor="{DynamicResource AccentColor}" />
+                </VerticalStackLayout>
+                <Button
+                    Grid.Column="1"
+                    Text="Trocar tema"
+                    Command="{Binding ToggleThemeCommand}"
+                    BackgroundColor="{DynamicResource CardBackgroundColor}"
+                    TextColor="{DynamicResource PrimaryTextColor}"
+                    CornerRadius="12"
+                    HeightRequest="40" />
+            </Grid>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                <Border Stroke="{DynamicResource CardBorderColor}" BackgroundColor="{DynamicResource CardBackgroundColor}" StrokeShape="RoundRectangle 18" Padding="16">
+                    <VerticalStackLayout>
+                        <Label Text="Entradas" TextColor="{DynamicResource SecondaryTextColor}" />
+                        <Label Text="{Binding TotalEntradas, StringFormat='R$ {0:N2}'}" FontSize="20" FontAttributes="Bold" TextColor="{DynamicResource SuccessColor}" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Stroke="{DynamicResource CardBorderColor}" BackgroundColor="{DynamicResource CardBackgroundColor}" StrokeShape="RoundRectangle 18" Padding="16">
+                    <VerticalStackLayout>
+                        <Label Text="Saídas" TextColor="{DynamicResource SecondaryTextColor}" />
+                        <Label Text="{Binding TotalSaidas, StringFormat='R$ {0:N2}'}" FontSize="20" FontAttributes="Bold" TextColor="{DynamicResource DangerColor}" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center" FlowDirection="LeftToRight">
+                <Button Text="Entradas" Command="{Binding OpenSectionCommand}" CommandParameter="Entradas" Style="{StaticResource ActionButtonStyle}" />
+                <Button Text="Saídas" Command="{Binding OpenSectionCommand}" CommandParameter="Saídas" Style="{StaticResource ActionButtonStyle}" />
+                <Button Text="Contas" Command="{Binding OpenSectionCommand}" CommandParameter="Contas" Style="{StaticResource ActionButtonStyle}" />
+                <Button Text="Tema" Command="{Binding OpenSectionCommand}" CommandParameter="Tema" Style="{StaticResource ActionButtonStyle}" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Button Text="Hoje" Command="{Binding SetPeriodCommand}" CommandParameter="Hoje" Style="{StaticResource FilterChipStyle}" />
+                <Button Text="7 dias" Command="{Binding SetPeriodCommand}" CommandParameter="SeteDias" Style="{StaticResource FilterChipStyle}" />
+                <Button Text="Mês" Command="{Binding SetPeriodCommand}" CommandParameter="MesAtual" Style="{StaticResource FilterChipStyle}" />
+            </HorizontalStackLayout>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="16" RowDefinitions="Auto">
+                <Border Grid.Column="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource CardBackgroundColor}" Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Distribuição" TextColor="{DynamicResource SecondaryTextColor}" />
+                        <GraphicsView x:Name="DonutView" HeightRequest="220" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="1" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource CardBackgroundColor}" Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Evolução" TextColor="{DynamicResource SecondaryTextColor}" />
+                        <GraphicsView x:Name="TrendView" HeightRequest="220" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+            <Label Text="Transações recentes" FontSize="18" TextColor="{DynamicResource PrimaryTextColor}" />
+            <CollectionView ItemsSource="{Binding RecentTransactions}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="domain:Transaction" xmlns:domain="clr-namespace:FinaceDavid.Domain.Entities">
+                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="{DynamicResource CardBackgroundColor}" Padding="16" Margin="0,0,0,12">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                <Label Text="{Binding Descricao}" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
+                                <Label Grid.Row="1" Text="{Binding Categoria}" TextColor="{DynamicResource SecondaryTextColor}" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding Valor, StringFormat='R$ {0:N2}'}"
+                                    TextColor="{DynamicResource PrimaryTextColor}" />
+                                <Label
+                                    Grid.Column="1"
+                                    Grid.Row="1"
+                                    Text="{Binding Data, StringFormat='{0:dd/MM}'}"
+                                    TextColor="{DynamicResource SecondaryTextColor}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
