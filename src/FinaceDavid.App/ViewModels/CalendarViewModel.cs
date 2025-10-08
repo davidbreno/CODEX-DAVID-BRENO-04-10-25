@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FinaceDavid.Services;
@@ -34,6 +35,7 @@ public partial class CalendarViewModel : ViewModelBase
             {
                 Days.Add(day);
             }
+            HighlightDate(_filterStateService.CurrentRange.Start.Date);
         }
         finally
         {
@@ -63,6 +65,19 @@ public partial class CalendarViewModel : ViewModelBase
             return;
         }
 
-        _filterStateService.SetPeriod(PeriodFilter.Intervalo, day.Value.Date, day.Value.Date);
+        _filterStateService.SetPeriod(PeriodFilter.Intervalo, day.Date, day.Date);
+        HighlightDate(day.Date);
+    }
+
+    private void HighlightDate(DateTime date)
+    {
+        var selected = Days.FirstOrDefault(d => d.Date.Date == date)
+                       ?? Days.FirstOrDefault(d => d.IsCurrentMonth && d.Date.Day == 1)
+                       ?? Days.FirstOrDefault(d => d.IsCurrentMonth);
+
+        foreach (var item in Days)
+        {
+            item.IsSelected = ReferenceEquals(item, selected);
+        }
     }
 }

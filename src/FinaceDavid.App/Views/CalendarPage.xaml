@@ -19,10 +19,20 @@
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:CalendarDay">
-                    <Border StrokeShape="RoundRectangle 12" BackgroundColor="{Binding HasTransactions, Converter={StaticResource BoolToColorConverter}, ConverterParameter='has'}" Padding="6" Margin="4">
+                    <Border StrokeShape="RoundRectangle 12" Padding="6" Margin="4" Stroke="{DynamicResource CardBorderColor}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
+                                <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsCurrentMonth}" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </DataTrigger>
+                        </Border.Triggers>
                         <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="4">
                             <Label Text="{Binding Date, StringFormat='{0:dd}'}" HorizontalOptions="Center" TextColor="{DynamicResource PrimaryTextColor}" />
                             <Label Text="{Binding Total, StringFormat='{0:C0}'}" FontSize="10" TextColor="{DynamicResource SecondaryTextColor}" HorizontalOptions="Center" />
+                            <BoxView WidthRequest="6" HeightRequest="6" CornerRadius="3" Color="{DynamicResource SuccessColor}" IsVisible="{Binding HasTransactions}" HorizontalOptions="Center" />
                         </VerticalStackLayout>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:CalendarViewModel}}, Path=SelectDayCommand}" CommandParameter="{Binding .}" />

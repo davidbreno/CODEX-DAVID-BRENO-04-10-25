@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finace David — Dashboard Financeira</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="logo">FD</span>
+          <div>
+            <strong>Finace David</strong>
+            <small>Gestão premium</small>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="#" class="active">
+            <span>Dashboard</span>
+            <small>Visão geral</small>
+          </a>
+          <a href="#">
+            <span>Transações</span>
+            <small>Histórico completo</small>
+          </a>
+          <a href="#">
+            <span>Contas</span>
+            <small>Pagamentos e cobranças</small>
+          </a>
+          <a href="#">
+            <span>Relatórios</span>
+            <small>Insights avançados</small>
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <p>Atualizado há <strong>2 minutos</strong>.</p>
+          <button class="btn-outline">Exportar Relatório</button>
+        </div>
+      </aside>
+      <main class="content">
+        <header class="top-bar">
+          <div>
+            <h1>Central Financeira</h1>
+            <p class="subtitle">Acompanhe entradas, saídas e compromissos em tempo real.</p>
+          </div>
+          <div class="top-actions">
+            <button class="btn-ghost" id="themeToggle" aria-label="Alternar tema">
+              <span class="icon">🌙</span>
+            </button>
+            <div class="profile-card">
+              <div class="avatar">D</div>
+              <div>
+                <strong>David Breno</strong>
+                <small>Diretor Financeiro</small>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="quick-links" aria-label="Seletor de visão">
+          <button class="quick-link active" data-view="resumo">
+            <span class="icon">📊</span>
+            Resumo
+          </button>
+          <button class="quick-link" data-view="entrada">
+            <span class="icon">⬆️</span>
+            Entrada
+          </button>
+          <button class="quick-link" data-view="saida">
+            <span class="icon">⬇️</span>
+            Saída
+          </button>
+          <button class="quick-link" data-view="contas">
+            <span class="icon">📅</span>
+            Contas a pagar
+          </button>
+        </section>
+
+        <section class="cards" aria-label="Indicadores principais">
+          <article class="card" data-card="saldo">
+            <header>
+              <span class="label">Saldo atual</span>
+              <span class="pill positive">▲ <span data-field="saldoVariation">+8,3%</span></span>
+            </header>
+            <div class="value" data-field="saldoValue">R$ 185.420,32</div>
+            <footer>
+              <span>Disponível em caixa</span>
+              <span class="secondary">Atualizado hoje</span>
+            </footer>
+          </article>
+          <article class="card" data-card="entradas">
+            <header>
+              <span class="label">Entradas</span>
+              <span class="pill positive">▲ <span data-field="entradaVariation">+12,4%</span></span>
+            </header>
+            <div class="value" data-field="entradaValue">R$ 72.900,00</div>
+            <footer>
+              <span>Ticket médio</span>
+              <span class="secondary" data-field="entradaAverage">R$ 3.040,00</span>
+            </footer>
+          </article>
+          <article class="card" data-card="saidas">
+            <header>
+              <span class="label">Saídas</span>
+              <span class="pill negative">▼ <span data-field="saidaVariation">-4,1%</span></span>
+            </header>
+            <div class="value" data-field="saidaValue">R$ 38.450,00</div>
+            <footer>
+              <span>Principais centros</span>
+              <span class="secondary" data-field="saidaTop">Marketing, Operações</span>
+            </footer>
+          </article>
+          <article class="card" data-card="contas">
+            <header>
+              <span class="label">Contas a pagar</span>
+              <span class="pill warning">⚠ <span data-field="contasDue">3 vencendo</span></span>
+            </header>
+            <div class="value" data-field="contasValue">R$ 24.230,00</div>
+            <footer>
+              <span>Agendadas para esta semana</span>
+              <span class="secondary" data-field="contasNext">Folha, Software, Energia</span>
+            </footer>
+          </article>
+        </section>
+
+        <section class="grid">
+          <article class="panel chart" aria-label="Desempenho mensal">
+            <header>
+              <div>
+                <h2 id="lineChartTitle">Evolução de entradas e saídas</h2>
+                <p class="secondary" id="lineChartSubtitle">Últimos 12 meses</p>
+              </div>
+              <div class="chip-group" role="group" aria-label="Escala temporal">
+                <button class="chip active" data-range="12">12 meses</button>
+                <button class="chip" data-range="6">6 meses</button>
+                <button class="chip" data-range="3">3 meses</button>
+              </div>
+            </header>
+            <canvas id="lineChart" height="260" role="img" aria-label="Gráfico de linhas com evolução financeira"></canvas>
+          </article>
+
+          <article class="panel chart" aria-label="Distribuição por categoria">
+            <header>
+              <div>
+                <h2 id="donutChartTitle">Distribuição por categoria</h2>
+                <p class="secondary" id="donutChartSubtitle">Top categorias</p>
+              </div>
+            </header>
+            <canvas id="donutChart" height="260" role="img" aria-label="Gráfico em rosca com distribuição"></canvas>
+          </article>
+
+          <article class="panel calendar" aria-label="Calendário financeiro">
+            <header>
+              <div>
+                <h2>Calendário inteligente</h2>
+                <p class="secondary">Clique nos dias para ver detalhes</p>
+              </div>
+              <div class="calendar-nav">
+                <button class="btn-ghost" id="prevMonth" aria-label="Mês anterior">◀</button>
+                <span id="calendarMonth" aria-live="polite">Abril 2025</span>
+                <button class="btn-ghost" id="nextMonth" aria-label="Próximo mês">▶</button>
+              </div>
+            </header>
+            <div class="calendar-grid" role="grid" aria-labelledby="calendarMonth"></div>
+            <div class="calendar-legend">
+              <span><i class="dot positive"></i>Entrada</span>
+              <span><i class="dot negative"></i>Saída</span>
+              <span><i class="dot warning"></i>Conta a pagar</span>
+            </div>
+            <div class="calendar-details" aria-live="polite">
+              <h3>Detalhes do dia</h3>
+              <ul id="calendarDetails"></ul>
+            </div>
+          </article>
+
+          <article class="panel activity" aria-label="Linha do tempo de atividades">
+            <header>
+              <div>
+                <h2>Últimos movimentos</h2>
+                <p class="secondary">Atualizado continuamente</p>
+              </div>
+            </header>
+            <ul class="timeline" id="activityTimeline"></ul>
+          </article>
+        </section>
+      </main>
+    </div>
+    <div class="chart-tooltip" id="chartTooltip" role="status" aria-hidden="true"></div>
+    <script src="script.js"></script>
+  </body>
+</html>
