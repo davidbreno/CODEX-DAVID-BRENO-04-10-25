@@ -5,86 +5,314 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:viewmodels="clr-namespace:FinaceDavid.ViewModels"
     xmlns:domain="clr-namespace:FinaceDavid.Domain.Entities"
+    xmlns:models="clr-namespace:FinaceDavid.Services.Models"
     BackgroundColor="{DynamicResource SurfaceColor}"
     x:DataType="viewmodels:HomeViewModel">
     <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="24">
-            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
-                <VerticalStackLayout>
-                    <Label Text="Bem-vindo" FontSize="18" TextColor="{DynamicResource SecondaryTextColor}" />
-                    <Label Text="Saldo atual" FontSize="14" TextColor="{DynamicResource SecondaryTextColor}" />
-                    <Label Text="{Binding Saldo, StringFormat='R$ {0:N2}'}" FontSize="32" FontAttributes="Bold" TextColor="{DynamicResource AccentColor}" />
-                </VerticalStackLayout>
-                <Button
-                    Grid.Column="1"
-                    Text="Trocar tema"
-                    Command="{Binding ToggleThemeCommand}"
-                    BackgroundColor="{DynamicResource CardBackgroundColor}"
-                    TextColor="{DynamicResource PrimaryTextColor}"
-                    CornerRadius="12"
-                    HeightRequest="40" />
-            </Grid>
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
-                <Border Stroke="{DynamicResource CardBorderColor}" BackgroundColor="{DynamicResource CardBackgroundColor}" StrokeShape="RoundRectangle 18" Padding="16">
-                    <VerticalStackLayout>
-                        <Label Text="Entradas" TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Text="{Binding TotalEntradas, StringFormat='R$ {0:N2}'}" FontSize="20" FontAttributes="Bold" TextColor="{DynamicResource SuccessColor}" />
+        <Grid
+            x:Name="LayoutRoot"
+            Padding="32"
+            RowSpacing="24"
+            ColumnSpacing="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition x:Name="SideColumn" Width="*" />
+            </Grid.ColumnDefinitions>
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup>
+                    <VisualState x:Name="Expanded">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="1024" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter TargetName="SideColumn" Property="ColumnDefinition.Width" Value="380" />
+                            <Setter TargetName="MainPanel" Property="Grid.ColumnSpan" Value="1" />
+                            <Setter TargetName="SidePanel" Property="Grid.Column" Value="1" />
+                            <Setter TargetName="SidePanel" Property="Grid.Row" Value="0" />
+                            <Setter TargetName="SidePanel" Property="Grid.RowSpan" Value="2" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
+            <VerticalStackLayout x:Name="MainPanel" Grid.ColumnSpan="2" Spacing="24">
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Finace David" FontSize="28" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
+                        <Label Text="Controle premium das suas finanças" TextColor="{DynamicResource SecondaryTextColor}" />
+                        <Label
+                            Text="{Binding PeriodDescription, StringFormat='Período ativo: {0}'}"
+                            FontSize="14"
+                            TextColor="{DynamicResource SecondaryTextColor}" />
                     </VerticalStackLayout>
-                </Border>
-                <Border Stroke="{DynamicResource CardBorderColor}" BackgroundColor="{DynamicResource CardBackgroundColor}" StrokeShape="RoundRectangle 18" Padding="16">
-                    <VerticalStackLayout>
-                        <Label Text="Saídas" TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Text="{Binding TotalSaidas, StringFormat='R$ {0:N2}'}" FontSize="20" FontAttributes="Bold" TextColor="{DynamicResource DangerColor}" />
-                    </VerticalStackLayout>
-                </Border>
-            </Grid>
-            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center" FlowDirection="LeftToRight">
-                <Button Text="Entradas" Command="{Binding OpenSectionCommand}" CommandParameter="Entradas" Style="{StaticResource ActionButtonStyle}" />
-                <Button Text="Saídas" Command="{Binding OpenSectionCommand}" CommandParameter="Saídas" Style="{StaticResource ActionButtonStyle}" />
-                <Button Text="Contas" Command="{Binding OpenSectionCommand}" CommandParameter="Contas" Style="{StaticResource ActionButtonStyle}" />
-                <Button Text="Tema" Command="{Binding OpenSectionCommand}" CommandParameter="Tema" Style="{StaticResource ActionButtonStyle}" />
-            </HorizontalStackLayout>
-            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
-                <Button Text="Hoje" Command="{Binding SetPeriodCommand}" CommandParameter="Hoje" Style="{StaticResource FilterChipStyle}" />
-                <Button Text="7 dias" Command="{Binding SetPeriodCommand}" CommandParameter="SeteDias" Style="{StaticResource FilterChipStyle}" />
-                <Button Text="Mês" Command="{Binding SetPeriodCommand}" CommandParameter="MesAtual" Style="{StaticResource FilterChipStyle}" />
-            </HorizontalStackLayout>
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="16" RowDefinitions="Auto">
-                <Border Grid.Column="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource CardBackgroundColor}" Padding="16">
+                    <Button
+                        Grid.Column="1"
+                        Text="Alternar tema"
+                        Command="{Binding ToggleThemeCommand}"
+                        Style="{StaticResource ActionButtonStyle}" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="16">
+                    <Border StrokeShape="RoundRectangle 24" Padding="20">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Saldo consolidado" TextColor="{DynamicResource SecondaryTextColor}" />
+                            <Label
+                                Text="{Binding Saldo, StringFormat='R$ {0:N2}'}"
+                                FontSize="26"
+                                FontAttributes="Bold"
+                                TextColor="{DynamicResource AccentColor}" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 24" Padding="20">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Entradas" TextColor="{DynamicResource SecondaryTextColor}" />
+                            <Label
+                                Text="{Binding TotalEntradas, StringFormat='R$ {0:N2}'}"
+                                FontSize="24"
+                                FontAttributes="Bold"
+                                TextColor="{DynamicResource SuccessColor}" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 24" Padding="20">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Saídas" TextColor="{DynamicResource SecondaryTextColor}" />
+                            <Label
+                                Text="{Binding TotalSaidas, StringFormat='R$ {0:N2}'}"
+                                FontSize="24"
+                                FontAttributes="Bold"
+                                TextColor="{DynamicResource DangerColor}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <FlexLayout Direction="Row" Wrap="Wrap" AlignItems="Center" JustifyContent="Start" Margin="0,8,0,0">
+                    <Button Margin="0,0,12,12" Text="Entradas" Command="{Binding OpenSectionCommand}" CommandParameter="Entradas" Style="{StaticResource ActionButtonStyle}" />
+                    <Button Margin="0,0,12,12" Text="Saídas" Command="{Binding OpenSectionCommand}" CommandParameter="Saídas" Style="{StaticResource ActionButtonStyle}" />
+                    <Button Margin="0,0,12,12" Text="Contas a pagar" Command="{Binding OpenSectionCommand}" CommandParameter="Contas" Style="{StaticResource ActionButtonStyle}" />
+                    <Button Margin="0,0,12,12" Text="Resumo" Command="{Binding OpenSectionCommand}" CommandParameter="Resumo" Style="{StaticResource ActionButtonStyle}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding IsResumoExpanded}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    <Button Margin="0,0,12,12" Text="Tema" Command="{Binding OpenSectionCommand}" CommandParameter="Tema" Style="{StaticResource ActionButtonStyle}" />
+                </FlexLayout>
+
+                <Border StrokeShape="RoundRectangle 24" Padding="20">
                     <VerticalStackLayout Spacing="12">
-                        <Label Text="Distribuição" TextColor="{DynamicResource SecondaryTextColor}" />
-                        <GraphicsView x:Name="DonutView" HeightRequest="220" />
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Label Text="Janela de análise" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
+                            <Label
+                                Grid.Column="1"
+                                HorizontalOptions="End"
+                                Text="{Binding PeriodDescription}"
+                                TextColor="{DynamicResource SecondaryTextColor}" />
+                        </Grid>
+                        <HorizontalStackLayout Spacing="12">
+                            <Button Text="Hoje" Command="{Binding SetPeriodCommand}" CommandParameter="Hoje" Style="{StaticResource FilterChipStyle}" />
+                            <Button Text="7 dias" Command="{Binding SetPeriodCommand}" CommandParameter="SeteDias" Style="{StaticResource FilterChipStyle}" />
+                            <Button Text="Mês" Command="{Binding SetPeriodCommand}" CommandParameter="MesAtual" Style="{StaticResource FilterChipStyle}" />
+                        </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Border>
-                <Border Grid.Column="1" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource CardBackgroundColor}" Padding="16">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="Evolução" TextColor="{DynamicResource SecondaryTextColor}" />
-                        <GraphicsView x:Name="TrendView" HeightRequest="220" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                    <Border StrokeShape="RoundRectangle 24" Padding="20">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Distribuição de fluxos" TextColor="{DynamicResource SecondaryTextColor}" />
+                            <GraphicsView x:Name="DonutView" HeightRequest="220" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 24" Padding="20">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Evolução temporal" TextColor="{DynamicResource SecondaryTextColor}" />
+                            <GraphicsView x:Name="TrendView" HeightRequest="220" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <Border StrokeShape="RoundRectangle 24" Padding="24" IsVisible="{Binding IsResumoExpanded}">
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="Resumo inteligente" FontSize="20" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
+                        <Label Text="{Binding ResumoNarrativa}" TextColor="{DynamicResource SecondaryTextColor}" />
+                        <CollectionView ItemsSource="{Binding PeriodSummaries}" SelectionMode="None">
+                            <CollectionView.EmptyView>
+                                <Label Text="Sem histórico para o período." TextColor="{DynamicResource SecondaryTextColor}" HorizontalOptions="Center" />
+                            </CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:DailySummary">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12" Padding="0,4">
+                                        <Label Text="{Binding Date, StringFormat='{0:dd MMM}'}" TextColor="{DynamicResource PrimaryTextColor}" />
+                                        <Border Grid.Column="1" BackgroundColor="{DynamicResource CardBorderColor}" StrokeShape="RoundRectangle 8" Padding="6,2">
+                                            <Label Text="{Binding Date, StringFormat='{0:dddd}'}" TextColor="{DynamicResource SecondaryTextColor}" FontSize="12" TextTransform="Capitalize" />
+                                        </Border>
+                                        <Label
+                                            Grid.Column="2"
+                                            Text="{Binding TotalEntrada, StringFormat='+{0:C0}'}"
+                                            TextColor="{DynamicResource SuccessColor}"
+                                            HorizontalTextAlignment="End" />
+                                        <Label
+                                            Grid.Column="3"
+                                            Text="{Binding TotalSaida, StringFormat='-{0:C0}'}"
+                                            TextColor="{DynamicResource DangerColor}"
+                                            HorizontalTextAlignment="End" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <CollectionView ItemsSource="{Binding CategoryHighlights}" SelectionMode="None">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.EmptyView>
+                                <Label Text="Categorias aguardando lançamentos." TextColor="{DynamicResource SecondaryTextColor}" />
+                            </CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:CategoryBreakdown">
+                                    <Border StrokeShape="RoundRectangle 16" Padding="16" BackgroundColor="{DynamicResource CardBorderColor}">
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Text="{Binding Categoria}" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
+                                            <Label Text="{Binding Total, StringFormat='R$ {0:N2}'}" TextColor="{DynamicResource SecondaryTextColor}" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
                     </VerticalStackLayout>
                 </Border>
-            </Grid>
-            <Label Text="Transações recentes" FontSize="18" TextColor="{DynamicResource PrimaryTextColor}" />
-            <CollectionView ItemsSource="{Binding RecentTransactions}" SelectionMode="None">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="domain:Transaction" xmlns:domain="clr-namespace:FinaceDavid.Domain.Entities">
-                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="{DynamicResource CardBackgroundColor}" Padding="16" Margin="0,0,0,12">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                                <Label Text="{Binding Descricao}" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
-                                <Label Grid.Row="1" Text="{Binding Categoria}" TextColor="{DynamicResource SecondaryTextColor}" />
-                                <Label
-                                    Grid.Column="1"
-                                    Text="{Binding Valor, StringFormat='R$ {0:N2}'}"
-                                    TextColor="{DynamicResource PrimaryTextColor}" />
-                                <Label
-                                    Grid.Column="1"
-                                    Grid.Row="1"
-                                    Text="{Binding Data, StringFormat='{0:dd/MM}'}"
-                                    TextColor="{DynamicResource SecondaryTextColor}" />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
+
+                <Border StrokeShape="RoundRectangle 24" Padding="24">
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="Movimentações recentes" FontSize="20" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
+                        <CollectionView ItemsSource="{Binding RecentTransactions}" SelectionMode="None">
+                            <CollectionView.EmptyView>
+                                <Label Text="Nenhuma movimentação encontrada." TextColor="{DynamicResource SecondaryTextColor}" HorizontalOptions="Center" />
+                            </CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="domain:Transaction">
+                                    <Border StrokeShape="RoundRectangle 16" Padding="16" Margin="0,0,0,12">
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                            <Label Text="{Binding Descricao}" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
+                                            <Label Grid.Row="1" Text="{Binding Categoria}" TextColor="{DynamicResource SecondaryTextColor}" />
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding Valor, StringFormat='R$ {0:N2}'}"
+                                                TextColor="{DynamicResource PrimaryTextColor}" />
+                                            <Label
+                                                Grid.Column="1"
+                                                Grid.Row="1"
+                                                Text="{Binding Data, StringFormat='{0:dd/MM}'}"
+                                                TextColor="{DynamicResource SecondaryTextColor}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout x:Name="SidePanel" Grid.Row="1" Grid.ColumnSpan="2" Spacing="24">
+                <Border StrokeShape="RoundRectangle 24" Padding="24">
+                    <VerticalStackLayout Spacing="16">
+                        <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                            <Button Text="◀" Command="{Binding PreviousCalendarMonthCommand}" Style="{StaticResource FilterChipStyle}" />
+                            <Label
+                                Grid.Column="1"
+                                HorizontalOptions="Center"
+                                Text="{Binding CalendarMonth, StringFormat='{0:MMMM yyyy}'}"
+                                FontSize="18"
+                                TextTransform="Capitalize"
+                                TextColor="{DynamicResource PrimaryTextColor}" />
+                            <Button Grid.Column="2" Text="▶" Command="{Binding NextCalendarMonthCommand}" Style="{StaticResource FilterChipStyle}" />
+                        </Grid>
+                        <CollectionView ItemsSource="{Binding CalendarDays}" SelectionMode="None">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout Orientation="Vertical" Span="7" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:CalendarDay">
+                                    <Border StrokeShape="RoundRectangle 12" Padding="8" Margin="2" Stroke="{DynamicResource CardBorderColor}">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource AccentColor}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource AccentColor}" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsCurrentMonth}" Value="False">
+                                                <Setter Property="Opacity" Value="0.4" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                                            <Label Text="{Binding Date, StringFormat='{0:dd}'}" HorizontalOptions="Center" TextColor="{DynamicResource PrimaryTextColor}" />
+                                            <Label Text="{Binding Total, StringFormat='{0:C0}'}" FontSize="10" TextColor="{DynamicResource SecondaryTextColor}" HorizontalOptions="Center" />
+                                            <BoxView WidthRequest="6" HeightRequest="6" CornerRadius="3" Color="{DynamicResource SuccessColor}" IsVisible="{Binding HasTransactions}" HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HomeViewModel}}, Path=SelectCalendarDayCommand}" CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border StrokeShape="RoundRectangle 24" Padding="24">
+                    <VerticalStackLayout Spacing="16">
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <Label Text="{Binding HighlightedDayLabel}" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
+                            <Label
+                                Grid.Column="1"
+                                Text="{Binding HighlightedDaySaldo, StringFormat='Saldo {0:C}'}"
+                                TextColor="{DynamicResource AccentColor}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                            <Border StrokeShape="RoundRectangle 16" Padding="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Entradas" TextColor="{DynamicResource SecondaryTextColor}" />
+                                    <Label Text="{Binding HighlightedDayEntradas, StringFormat='R$ {0:N2}'}" FontAttributes="Bold" TextColor="{DynamicResource SuccessColor}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border StrokeShape="RoundRectangle 16" Padding="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Saídas" TextColor="{DynamicResource SecondaryTextColor}" />
+                                    <Label Text="{Binding HighlightedDaySaidas, StringFormat='R$ {0:N2}'}" FontAttributes="Bold" TextColor="{DynamicResource DangerColor}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                        <CollectionView ItemsSource="{Binding DailyTransactions}" SelectionMode="None">
+                            <CollectionView.EmptyView>
+                                <Label Text="Nenhuma movimentação para a data." TextColor="{DynamicResource SecondaryTextColor}" />
+                            </CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="domain:Transaction">
+                                    <Border StrokeShape="RoundRectangle 16" Padding="16" Margin="0,0,0,12">
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                            <Label Text="{Binding Descricao}" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" />
+                                            <Label Grid.Row="1" Text="{Binding Categoria}" TextColor="{DynamicResource SecondaryTextColor}" />
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding Valor, StringFormat='R$ {0:N2}'}"
+                                                TextColor="{DynamicResource PrimaryTextColor}" />
+                                            <Label
+                                                Grid.Column="1"
+                                                Grid.Row="1"
+                                                Text="{Binding Data, StringFormat='{0:HH:mm}'}"
+                                                TextColor="{DynamicResource SecondaryTextColor}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </Grid>
     </ScrollView>
 </ContentPage>

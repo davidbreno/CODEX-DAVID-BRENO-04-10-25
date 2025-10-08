@@ -144,6 +144,7 @@
                 <button class="chip" data-range="3">3 meses</button>
               </div>
             </header>
+            <canvas id="lineChart" height="260" role="img" aria-label="Gráfico de linhas com evolução financeira"></canvas>
             <canvas id="lineChart" height="220" role="img" aria-label="Gráfico de linhas com evolução financeira"></canvas>
           </article>
 
@@ -154,6 +155,8 @@
                 <p class="secondary" id="donutChartSubtitle">Top categorias</p>
               </div>
             </header>
+[            <canvas id="donutChart" height="260" role="img" aria-label="Gráfico em rosca com distribuição"></canvas>
+
             <canvas id="donutChart" height="220" role="img" aria-label="Gráfico em rosca com distribuição"></canvas>
           </article>
 
@@ -193,6 +196,7 @@
         </section>
       </main>
     </div>
+    <div class="chart-tooltip" id="chartTooltip" role="status" aria-hidden="true"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" integrity="sha384-wFkcoFszhWnWoL4+tT7xAODTixLBlv9wlHFugNPVJzkLTmNdzpyQkfmc52Uz9J28" crossorigin="anonymous"></script>
     <script src="script.js"></script>

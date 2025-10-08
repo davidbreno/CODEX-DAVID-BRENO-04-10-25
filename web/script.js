@@ -277,11 +277,401 @@ const calendarGrid = document.querySelector('.calendar-grid');
 const calendarDetails = document.getElementById('calendarDetails');
 const activityTimeline = document.getElementById('activityTimeline');
 const themeToggle = document.getElementById('themeToggle');
+const lineCanvas = document.getElementById('lineChart');
+const donutCanvas = document.getElementById('donutChart');
+const chartTooltip = document.getElementById('chartTooltip');
 
 let currentView = 'resumo';
 let currentRange = 12;
 let currentDate = new Date(financeData.resumo.events[0].date);
 
+const lineChartState = {
+  labels: [],
+  datasets: [],
+  hitPoints: [],
+  activePointKey: null,
+  scheduled: false,
+};
+
+const donutChartState = {
+  labels: [],
+  data: [],
+  colors: [],
+  total: 0,
+  segments: [],
+  activeIndex: null,
+  scheduled: false,
+  geometry: null,
+};
+
+const donutRotation = -Math.PI / 2;
+
+function prepareCanvas(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const width = rect.width || canvas.width;
+  const height = rect.height || canvas.height;
+  const dpr = window.devicePixelRatio || 1;
+  const targetWidth = Math.max(1, Math.round(width * dpr));
+  const targetHeight = Math.max(1, Math.round(height * dpr));
+  if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+  }
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+  return { ctx, width, height };
+}
+
+function getThemeColor(variable) {
+  return getComputedStyle(document.body).getPropertyValue(variable).trim() || '#94a3b8';
+}
+
+function positionTooltip(clientX, clientY) {
+  if (!chartTooltip) return;
+  const tooltipRect = chartTooltip.getBoundingClientRect();
+  const offset = 16;
+  let left = clientX + offset;
+  let top = clientY + offset;
+  if (left + tooltipRect.width > window.innerWidth - 12) {
+    left = clientX - tooltipRect.width - offset;
+  }
+  if (top + tooltipRect.height > window.innerHeight - 12) {
+    top = clientY - tooltipRect.height - offset;
+  }
+  chartTooltip.style.transform = `translate(${Math.max(12, left)}px, ${Math.max(12, top)}px)`;
+}
+
+function showTooltip(content, clientX, clientY) {
+  if (!chartTooltip) return;
+  chartTooltip.innerHTML = content;
+  chartTooltip.classList.add('visible');
+  chartTooltip.setAttribute('aria-hidden', 'false');
+  positionTooltip(clientX, clientY);
+}
+
+function hideTooltip() {
+  if (!chartTooltip) return;
+  chartTooltip.classList.remove('visible');
+  chartTooltip.setAttribute('aria-hidden', 'true');
+  chartTooltip.style.transform = 'translate(-9999px, -9999px)';
+}
+
+function renderLineChart() {
+  if (!lineCanvas) return;
+  const { ctx, width, height } = prepareCanvas(lineCanvas);
+  const padding = { top: 32, right: 28, bottom: 52, left: 68 };
+  const chartWidth = Math.max(0, width - padding.left - padding.right);
+  const chartHeight = Math.max(0, height - padding.top - padding.bottom);
+  const chartLeft = padding.left;
+  const chartBottom = height - padding.bottom;
+  const chartTop = padding.top;
+
+  const labels = lineChartState.labels;
+  const datasets = lineChartState.datasets;
+  lineChartState.hitPoints = [];
+
+  if (!labels.length || !datasets.length) {
+    ctx.fillStyle = getThemeColor('--text-soft');
+    ctx.font = '500 14px "Inter", system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('Sem dados suficientes para exibir o gráfico.', width / 2, height / 2);
+    return;
+  }
+
+  const allValues = datasets.flatMap((dataset) => dataset.data);
+  const maxValue = Math.max(...allValues);
+  const minValue = Math.min(...allValues);
+  const valueRange = maxValue - minValue || maxValue || 1;
+  const upperBound = maxValue + valueRange * 0.1;
+  const lowerBound = Math.max(0, minValue - valueRange * 0.1);
+  const span = Math.max(upperBound - lowerBound, 1);
+
+  const gridColor = 'rgba(148, 163, 184, 0.16)';
+  const axisColor = getThemeColor('--text-soft');
+
+  const steps = 4;
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 6]);
+  for (let step = 0; step <= steps; step += 1) {
+    const ratio = step / steps;
+    const y = chartBottom - ratio * chartHeight;
+    ctx.beginPath();
+    ctx.moveTo(chartLeft, y);
+    ctx.lineTo(chartLeft + chartWidth, y);
+    ctx.stroke();
+    const value = lowerBound + (upperBound - lowerBound) * ratio;
+    ctx.save();
+    ctx.setLineDash([]);
+    ctx.fillStyle = axisColor;
+    ctx.font = '500 12px "Inter", system-ui';
+    ctx.textAlign = 'right';
+    ctx.fillText(formatCurrency(value), chartLeft - 12, y + 4);
+    ctx.restore();
+  }
+  ctx.setLineDash([]);
+
+  const labelCount = labels.length;
+  const stepX = labelCount > 1 ? chartWidth / (labelCount - 1) : 0;
+  ctx.fillStyle = axisColor;
+  ctx.font = '500 12px "Inter", system-ui';
+  ctx.textAlign = 'center';
+  labels.forEach((label, index) => {
+    const x = chartLeft + (labelCount > 1 ? index * stepX : chartWidth / 2);
+    ctx.fillText(label, x, chartBottom + 32);
+  });
+
+  const datasetPoints = [];
+  datasets.forEach((dataset, datasetIndex) => {
+    const points = dataset.data.map((value, index) => {
+      const ratio = (value - lowerBound) / span;
+      const x = chartLeft + (labelCount > 1 ? index * stepX : chartWidth / 2);
+      const y = chartBottom - ratio * chartHeight;
+      const point = {
+        x,
+        y,
+        value,
+        datasetIndex,
+        labelIndex: index,
+        label: labels[index],
+        datasetLabel: dataset.label,
+        color: dataset.borderColor,
+        key: `${datasetIndex}-${index}`,
+      };
+      lineChartState.hitPoints.push(point);
+      return point;
+    });
+    datasetPoints.push({ dataset, points });
+  });
+
+  datasetPoints.forEach(({ dataset, points }) => {
+    if (dataset.fill && dataset.backgroundColor && points.length) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, chartBottom);
+      points.forEach((point) => ctx.lineTo(point.x, point.y));
+      ctx.lineTo(points[points.length - 1].x, chartBottom);
+      ctx.closePath();
+      ctx.fillStyle = dataset.backgroundColor;
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    points.forEach((point, index) => {
+      if (index === 0) {
+        ctx.moveTo(point.x, point.y);
+      } else {
+        ctx.lineTo(point.x, point.y);
+      }
+    });
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = dataset.borderColor || '#7c3aed';
+    ctx.stroke();
+  });
+
+  ctx.fillStyle = axisColor;
+  ctx.fillRect(chartLeft, chartBottom, chartWidth, 1);
+
+  if (lineChartState.activePointKey) {
+    const active = lineChartState.hitPoints.find((point) => point.key === lineChartState.activePointKey);
+    if (active) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+      ctx.setLineDash([4, 6]);
+      ctx.beginPath();
+      ctx.moveTo(active.x, chartTop);
+      ctx.lineTo(active.x, chartBottom);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.fillStyle = active.color || '#7c3aed';
+      ctx.beginPath();
+      ctx.arc(active.x, active.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+}
+
+function renderDonutChart() {
+  if (!donutCanvas) return;
+  const { ctx, width, height } = prepareCanvas(donutCanvas);
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const radius = Math.max(0, Math.min(width, height) / 2 - 16);
+  const innerRadius = radius * 0.58;
+  donutChartState.geometry = { centerX, centerY, radius, innerRadius };
+
+  const { labels, data, colors, activeIndex, total } = donutChartState;
+  donutChartState.segments = [];
+
+  if (!data.length || total === 0) {
+    ctx.fillStyle = getThemeColor('--text-soft');
+    ctx.font = '500 14px "Inter", system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('Sem dados suficientes para exibir o gráfico.', centerX, centerY);
+    return;
+  }
+
+  let startAngle = 0;
+  data.forEach((value, index) => {
+    const portion = value / total;
+    const segment = {
+      start: startAngle,
+      end: startAngle + portion * Math.PI * 2,
+      label: labels[index],
+      value,
+      color: colors[index],
+      index,
+    };
+    donutChartState.segments.push(segment);
+    startAngle = segment.end;
+  });
+
+  donutChartState.segments.forEach((segment) => {
+    const isActive = segment.index === activeIndex;
+    const displayRadius = isActive ? radius + 6 : radius;
+    const start = donutRotation + segment.start;
+    const end = donutRotation + segment.end;
+
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, displayRadius, start, end);
+    ctx.arc(centerX, centerY, innerRadius, end, start, true);
+    ctx.closePath();
+    ctx.fillStyle = segment.color;
+    ctx.globalAlpha = isActive ? 0.95 : 0.82;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(15, 23, 42, 0.35)';
+    ctx.stroke();
+  });
+
+  ctx.fillStyle = getThemeColor('--text');
+  ctx.font = '700 18px "Inter", system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(formatCurrency(total), centerX, centerY - 4);
+
+  ctx.fillStyle = getThemeColor('--text-soft');
+  ctx.font = '500 12px "Inter", system-ui';
+  ctx.fillText('Total movimentado', centerX, centerY + 18);
+}
+
+function scheduleLineChartRender() {
+  if (lineChartState.scheduled) return;
+  lineChartState.scheduled = true;
+  requestAnimationFrame(() => {
+    lineChartState.scheduled = false;
+    renderLineChart();
+  });
+}
+
+function scheduleDonutChartRender() {
+  if (donutChartState.scheduled) return;
+  donutChartState.scheduled = true;
+  requestAnimationFrame(() => {
+    donutChartState.scheduled = false;
+    renderDonutChart();
+  });
+}
+
+function handleLineHover(event) {
+  if (!lineCanvas) return;
+  const rect = lineCanvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const tolerance = 18;
+  let nearest = null;
+
+  lineChartState.hitPoints.forEach((point) => {
+    const distance = Math.hypot(point.x - x, point.y - y);
+    if (distance <= tolerance && (!nearest || distance < nearest.distance)) {
+      nearest = { ...point, distance };
+    }
+  });
+
+  if (nearest) {
+    if (lineChartState.activePointKey !== nearest.key) {
+      lineChartState.activePointKey = nearest.key;
+      scheduleLineChartRender();
+    }
+    showTooltip(
+      `<strong>${nearest.datasetLabel}</strong><span>${nearest.label}</span><span>${formatCurrency(nearest.value)}</span>`,
+      event.clientX,
+      event.clientY
+    );
+  } else {
+    if (lineChartState.activePointKey) {
+      lineChartState.activePointKey = null;
+      scheduleLineChartRender();
+    }
+    hideTooltip();
+  }
+}
+
+function handleLineLeave() {
+  if (lineChartState.activePointKey) {
+    lineChartState.activePointKey = null;
+    scheduleLineChartRender();
+  }
+  hideTooltip();
+}
+
+function handleDonutHover(event) {
+  if (!donutCanvas || !donutChartState.geometry) return;
+  const rect = donutCanvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const { centerX, centerY, radius, innerRadius } = donutChartState.geometry;
+  const dx = x - centerX;
+  const dy = y - centerY;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance < innerRadius || distance > radius + 8) {
+    if (donutChartState.activeIndex !== null) {
+      donutChartState.activeIndex = null;
+      scheduleDonutChartRender();
+    }
+    hideTooltip();
+    return;
+  }
+
+  let angle = Math.atan2(dy, dx) - donutRotation;
+  if (angle < 0) angle += Math.PI * 2;
+
+  const segment = donutChartState.segments.find((item) => angle >= item.start && angle < item.end);
+  if (segment) {
+    if (donutChartState.activeIndex !== segment.index) {
+      donutChartState.activeIndex = segment.index;
+      scheduleDonutChartRender();
+    }
+    const percentage = donutChartState.total ? ((segment.value / donutChartState.total) * 100).toFixed(1) : '0.0';
+    showTooltip(
+      `<strong>${segment.label}</strong><span>${formatCurrency(segment.value)} · ${percentage}%</span>`,
+      event.clientX,
+      event.clientY
+    );
+  } else {
+    if (donutChartState.activeIndex !== null) {
+      donutChartState.activeIndex = null;
+      scheduleDonutChartRender();
+    }
+    hideTooltip();
+  }
+}
+
+function handleDonutLeave() {
+  if (donutChartState.activeIndex !== null) {
+    donutChartState.activeIndex = null;
+    scheduleDonutChartRender();
+  }
+  hideTooltip();
+}
 const lineChart = new Chart(document.getElementById('lineChart'), {
   type: 'line',
   data: {
@@ -392,6 +782,10 @@ function updateLineChart(viewKey) {
     data: applyRange(dataset.data, currentRange),
   }));
 
+  lineChartState.labels = labels;
+  lineChartState.datasets = datasets;
+  lineChartState.activePointKey = null;
+  scheduleLineChartRender();
   lineChart.data.labels = labels;
   lineChart.data.datasets = datasets;
   lineChart.update();
@@ -399,6 +793,12 @@ function updateLineChart(viewKey) {
 
 function updateDonutChart(viewKey) {
   const { donut } = financeData[viewKey];
+  donutChartState.labels = donut.labels;
+  donutChartState.data = donut.data;
+  donutChartState.colors = donut.colors;
+  donutChartState.total = donut.data.reduce((acc, value) => acc + value, 0);
+  donutChartState.activeIndex = null;
+  scheduleDonutChartRender();
   donutChart.data.labels = donut.labels;
   donutChart.data.datasets[0].data = donut.data;
   donutChart.data.datasets[0].backgroundColor = donut.colors;
@@ -554,6 +954,7 @@ function updateTitles(viewKey) {
 
 function updateView(viewKey) {
   currentView = viewKey;
+  hideTooltip();
   updateTitles(viewKey);
   updateCards(viewKey);
   updateLineChart(viewKey);
@@ -585,6 +986,52 @@ chips.forEach((chip) => {
   });
 });
 
+if (lineCanvas) {
+  lineCanvas.addEventListener('mousemove', handleLineHover);
+  lineCanvas.addEventListener('mouseleave', handleLineLeave);
+  lineCanvas.addEventListener('touchstart', (event) => {
+    if (!event.touches.length) return;
+    handleLineHover(event.touches[0]);
+    event.preventDefault();
+  }, { passive: false });
+  lineCanvas.addEventListener('touchmove', (event) => {
+    if (!event.touches.length) return;
+    handleLineHover(event.touches[0]);
+    event.preventDefault();
+  }, { passive: false });
+  lineCanvas.addEventListener('touchend', handleLineLeave);
+  lineCanvas.addEventListener('touchcancel', handleLineLeave);
+}
+
+if (donutCanvas) {
+  donutCanvas.addEventListener('mousemove', handleDonutHover);
+  donutCanvas.addEventListener('mouseleave', handleDonutLeave);
+  donutCanvas.addEventListener('touchstart', (event) => {
+    if (!event.touches.length) return;
+    handleDonutHover(event.touches[0]);
+    event.preventDefault();
+  }, { passive: false });
+  donutCanvas.addEventListener('touchmove', (event) => {
+    if (!event.touches.length) return;
+    handleDonutHover(event.touches[0]);
+    event.preventDefault();
+  }, { passive: false });
+  donutCanvas.addEventListener('touchend', handleDonutLeave);
+  donutCanvas.addEventListener('touchcancel', handleDonutLeave);
+}
+
+if (window.ResizeObserver) {
+  const lineObserver = new ResizeObserver(() => scheduleLineChartRender());
+  const donutObserver = new ResizeObserver(() => scheduleDonutChartRender());
+  if (lineCanvas?.parentElement) lineObserver.observe(lineCanvas.parentElement);
+  if (donutCanvas?.parentElement) donutObserver.observe(donutCanvas.parentElement);
+}
+
+window.addEventListener('resize', () => {
+  scheduleLineChartRender();
+  scheduleDonutChartRender();
+});
+
 function shiftMonth(delta) {
   currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + delta, 1);
   renderCalendar(currentView);
@@ -596,6 +1043,9 @@ document.getElementById('nextMonth').addEventListener('click', () => shiftMonth(
 themeToggle.addEventListener('click', () => {
   document.body.classList.toggle('light');
   themeToggle.querySelector('.icon').textContent = document.body.classList.contains('light') ? '🌞' : '🌙';
+  scheduleLineChartRender();
+  scheduleDonutChartRender();
+  hideTooltip();
 });
 
 updateView('resumo');

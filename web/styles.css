@@ -308,6 +308,23 @@ body {
   gap: 20px;
 }
 
+.panel.chart {
+  position: relative;
+}
+
+.panel.chart canvas {
+  width: 100%;
+  height: 260px;
+  border-radius: 18px;
+  background: rgba(8, 12, 24, 0.35);
+  display: block;
+}
+
+.panel.chart canvas:focus-visible {
+  outline: 2px solid rgba(124, 58, 237, 0.6);
+  outline-offset: 4px;
+}
+
 .panel header {
   display: flex;
   align-items: flex-start;
@@ -500,6 +517,50 @@ body {
   color: #fda4af;
 }
 
+.chart-tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.92);
+  color: var(--text);
+  box-shadow: 0 24px 48px -28px rgba(15, 23, 42, 0.9);
+  font-size: 0.8rem;
+  opacity: 0;
+  transform: translate(-9999px, -9999px);
+  transition: opacity 0.15s ease;
+  z-index: 999;
+}
+
+.chart-tooltip.visible {
+  opacity: 1;
+}
+
+.chart-tooltip strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.chart-tooltip span {
+  display: block;
+  color: var(--text-soft);
+  font-size: 0.75rem;
+}
+
+body.light .chart-tooltip {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(148, 163, 184, 0.35);
+  color: var(--text);
+}
+
+body.light .chart-tooltip span {
+  color: var(--text-soft);
+}
+
 body.light {
   color-scheme: light;
   --bg: #eef2ff;
@@ -544,6 +605,10 @@ body.light .quick-link.active {
 body.light .card,
 body.light .panel {
   background: rgba(255, 255, 255, 0.92);
+}
+
+body.light .panel.chart canvas {
+  background: rgba(15, 23, 42, 0.06);
 }
 
 @media (max-width: 1180px) {
