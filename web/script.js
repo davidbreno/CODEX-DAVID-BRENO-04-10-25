@@ -672,6 +672,78 @@ function handleDonutLeave() {
   }
   hideTooltip();
 }
+const lineChart = new Chart(document.getElementById('lineChart'), {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [],
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          usePointStyle: true,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const value = ctx.parsed.y;
+            return `${ctx.dataset.label}: ${formatCurrency(value)}`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          color: 'rgba(148, 163, 184, 0.08)',
+        },
+      },
+      y: {
+        grid: {
+          color: 'rgba(148, 163, 184, 0.08)',
+        },
+        ticks: {
+          callback: (value) => formatCurrency(value),
+        },
+      },
+    },
+  },
+});
+
+const donutChart = new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: [],
+        borderWidth: 0,
+      },
+    ],
+  },
+  options: {
+    cutout: '70%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          boxWidth: 12,
+          usePointStyle: true,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.label}: ${formatCurrency(ctx.parsed)}`,
+        },
+      },
+    },
+  },
+});
 
 function applyRange(data, range) {
   return data.slice(-range);
@@ -714,6 +786,9 @@ function updateLineChart(viewKey) {
   lineChartState.datasets = datasets;
   lineChartState.activePointKey = null;
   scheduleLineChartRender();
+  lineChart.data.labels = labels;
+  lineChart.data.datasets = datasets;
+  lineChart.update();
 }
 
 function updateDonutChart(viewKey) {
@@ -724,6 +799,10 @@ function updateDonutChart(viewKey) {
   donutChartState.total = donut.data.reduce((acc, value) => acc + value, 0);
   donutChartState.activeIndex = null;
   scheduleDonutChartRender();
+  donutChart.data.labels = donut.labels;
+  donutChart.data.datasets[0].data = donut.data;
+  donutChart.data.datasets[0].backgroundColor = donut.colors;
+  donutChart.update();
 }
 
 function renderTimeline(viewKey) {
